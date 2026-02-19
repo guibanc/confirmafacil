@@ -19,7 +19,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === "production", // seguro em produção
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax"
   }
 }));
@@ -31,12 +31,10 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-/* Bloqueia acesso direto ao dashboard.html */
 app.get("/dashboard.html", (req, res) => {
   return res.redirect("/dashboard");
 });
 
-/* Arquivos estáticos */
 app.use(express.static("public", { index: false }));
 
 /* ========================
@@ -58,54 +56,53 @@ app.post("/register", async (req, res) => {
   if (!name || !email || !password)
     return res.status(400).json({ error: "Preencha todos os campos" });
 
+  const existingUser = db
+    .prepare("SELECT * FROM users WHERE email = ?")
+    .get(email);
+
+  if (existingUser)
+    return res.status(400).json({ error: "Email já cadastrado" });
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
-    if (user)
-      return res.status(400).json({ error: "Email já cadastrado" });
+  const result = db
+    .prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)")
+    .run(name, email, hashedPassword);
 
-    db.run(
-      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-      [name, email, hashedPassword],
-      function (err) {
-        if (err)
-          return res.status(500).json({ error: "Erro ao cadastrar" });
+  req.session.user = {
+    id: result.lastInsertRowid,
+    name,
+    email
+  };
 
-        req.session.user = {
-          id: this.lastID,
-          name,
-          email
-        };
-
-        res.json({ success: true });
-      }
-    );
-  });
+  res.json({ success: true });
 });
 
 /* ========================
    LOGIN
 ======================== */
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
-    if (!user)
-      return res.status(401).json({ error: "Usuário não encontrado" });
+  const user = db
+    .prepare("SELECT * FROM users WHERE email = ?")
+    .get(email);
 
-    const match = await bcrypt.compare(password, user.password);
+  if (!user)
+    return res.status(401).json({ error: "Usuário não encontrado" });
 
-    if (!match)
-      return res.status(401).json({ error: "Senha incorreta" });
+  const match = await bcrypt.compare(password, user.password);
 
-    req.session.user = {
-      id: user.id,
-      name: user.name,
-      email: user.email
-    };
+  if (!match)
+    return res.status(401).json({ error: "Senha incorreta" });
 
-    res.json({ success: true });
-  });
+  req.session.user = {
+    id: user.id,
+    name: user.name,
+    email: user.email
+  };
+
+  res.json({ success: true });
 });
 
 /* ========================
@@ -127,19 +124,18 @@ app.post("/events", authMiddleware, (req, res) => {
   if (!name || !slug)
     return res.status(400).json({ error: "Dados incompletos" });
 
-  db.run(
-    "INSERT INTO events (name, slug, user_id) VALUES (?, ?, ?)",
-    [name, slug, user_id],
-    function (err) {
-      if (err)
-        return res.status(400).json({ error: "Slug já existe" });
+  try {
+    const result = db
+      .prepare("INSERT INTO events (name, slug, user_id) VALUES (?, ?, ?)")
+      .run(name, slug, user_id);
 
-      res.json({
-        id: this.lastID,
-        link: `${req.protocol}://${req.get("host")}/evento/${slug}`
-      });
-    }
-  );
+    res.json({
+      id: result.lastInsertRowid,
+      link: `${req.protocol}://${req.get("host")}/evento/${slug}`
+    });
+  } catch (err) {
+    return res.status(400).json({ error: "Slug já existe" });
+  }
 });
 
 /* ========================
@@ -148,44 +144,42 @@ app.post("/events", authMiddleware, (req, res) => {
 app.get("/events", authMiddleware, (req, res) => {
   const user_id = req.session.user.id;
 
-  db.all(`
+  const rows = db.prepare(`
     SELECT e.*,
     (SELECT COUNT(*) FROM guests WHERE event_id = e.id) as total_confirmados
     FROM events e
     WHERE user_id = ?
-  `, [user_id], (err, rows) => {
-    if (err) return res.status(500).json({ error: "Erro ao buscar eventos" });
-    res.json(rows);
-  });
+  `).all(user_id);
+
+  res.json(rows);
 });
 
 /* ========================
    LISTAR CONVIDADOS
 ======================== */
 app.get("/guests/:event_id", authMiddleware, (req, res) => {
-  db.all(
-    "SELECT name, email FROM guests WHERE event_id = ?",
-    [req.params.event_id],
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: "Erro ao buscar convidados" });
-      res.json(rows);
-    }
-  );
+  const rows = db
+    .prepare("SELECT name, email FROM guests WHERE event_id = ?")
+    .all(req.params.event_id);
+
+  res.json(rows);
 });
 
 /* ========================
    API EVENTO
 ======================== */
 app.get("/api/event/:slug", (req, res) => {
-  db.get(`
+  const event = db.prepare(`
     SELECT e.*,
     (SELECT COUNT(*) FROM guests WHERE event_id = e.id) as total_confirmados
     FROM events e
     WHERE slug = ?
-  `, [req.params.slug], (err, event) => {
-    if (!event) return res.status(404).json({ error: "Evento não encontrado" });
-    res.json(event);
-  });
+  `).get(req.params.slug);
+
+  if (!event)
+    return res.status(404).json({ error: "Evento não encontrado" });
+
+  res.json(event);
 });
 
 /* ========================
@@ -198,21 +192,18 @@ app.post("/confirm/:slug", (req, res) => {
   if (!name || !email)
     return res.status(400).json({ error: "Dados incompletos" });
 
-  db.get("SELECT * FROM events WHERE slug = ?", [slug], (err, event) => {
-    if (!event)
-      return res.status(404).json({ error: "Evento não encontrado" });
+  const event = db
+    .prepare("SELECT * FROM events WHERE slug = ?")
+    .get(slug);
 
-    db.run(
-      "INSERT INTO guests (name, email, event_id) VALUES (?, ?, ?)",
-      [name, email, event.id],
-      function (err) {
-        if (err)
-          return res.status(500).json({ error: "Erro ao confirmar presença" });
+  if (!event)
+    return res.status(404).json({ error: "Evento não encontrado" });
 
-        res.json({ success: true });
-      }
-    );
-  });
+  db.prepare(
+    "INSERT INTO guests (name, email, event_id) VALUES (?, ?, ?)"
+  ).run(name, email, event.id);
+
+  res.json({ success: true });
 });
 
 /* ========================
@@ -233,7 +224,7 @@ app.get("/evento/:slug", (req, res) => {
 });
 
 /* ========================
-   PORTA DINÂMICA (IMPORTANTE)
+   PORTA DINÂMICA
 ======================== */
 const PORT = process.env.PORT || 3000;
 
