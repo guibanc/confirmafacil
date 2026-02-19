@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - ConfirmaFácil</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f9fafb;
+  color: #111;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  padding: 60px 24px;
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: #FFD600;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* CARDS */
+.card {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+}
+
+.card h3 {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #FFD600;
+  box-shadow: 0 0 0 4px rgba(255,214,0,0.15);
+}
+
+/* BUTTON */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  background: #FFD600;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #f5cc00;
+  transform: translateY(-1px);
+}
+
+/* EVENT LIST */
+.event-item {
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.event-item:hover {
+  background: #fff;
+  border-color: #FFD600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+  background: #FFD600;
+  font-weight: 700;
+}
+
+tr:hover td {
+  background: #fafafa;
+}
+
+/* LOGOUT */
+.logout {
+  text-align: center;
+  margin-top: 40px;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.logout:hover {
+  color: #111;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 40px 18px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="logo">Confirma<span>Fácil</span></div>
+
+  <div class="grid">
+
+    <!-- CRIAR EVENTO -->
+    <div class="card">
+      <h3>Criar Evento</h3>
+
+      <input type="text" id="eventName" placeholder="Nome do evento">
+      <input type="text" id="eventSlug" placeholder="Slug (ex: festa-aniversario)">
+
+      <button class="btn" id="createBtn">Criar Evento</button>
+    </div>
+
+    <!-- LISTA EVENTOS -->
+    <div class="card">
+      <h3>Meus Eventos</h3>
+      <div id="eventsList"></div>
+    </div>
+
+  </div>
+
+  <!-- DETALHES -->
+  <div class="card" style="margin-top:30px;">
+    <h3>Convidados</h3>
+    <div id="guestsSection">
+      <p style="color:#666;">Selecione um evento</p>
+    </div>
+  </div>
+
+  <div class="logout" onclick="logout()">Sair</div>
+
+</div>
+
+<script src="/dashboard.js"></script>
+
+</body>
+</html>

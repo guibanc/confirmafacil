@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConfirmaFácil</title>
+
+<style>
+
+/* ================================
+   RESET & BASE
+================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #ffffff;
+  color: #111;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+/* ================================
+   BRAND
+================================ */
+.logo {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+.logo span {
+  color: #FFD600;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background: #FFD600;
+  color: #000;
+  box-shadow: 0 6px 18px rgba(255, 214, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: #e6c200;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #111;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+
+.btn-link {
+  background: none;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.btn-link:hover {
+  color: #000;
+}
+
+/* ================================
+   SECTIONS
+================================ */
+.section {
+  display: none;
+  animation: fade 0.3s ease-in-out;
+}
+
+.section.active {
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #FFD600;
+  box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+}
+
+/* ================================
+   MESSAGES
+================================ */
+.message {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  display: none;
+  animation: fade 0.3s ease-in-out;
+}
+
+.message.success {
+  background: #e6f9ed;
+  color: #0f9d58;
+}
+
+.message.error {
+  background: #fdeaea;
+  color: #d93025;
+}
+
+/* ================================
+   ANIMATION
+================================ */
+@keyframes fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HOME -->
+  <div id="home" class="section active">
+    <div class="logo">Confirma<span>Fácil</span></div>
+
+    <button class="btn btn-primary" onclick="showSection('authChoice')">
+      ➕ Criar novo evento
+    </button>
+
+    <button class="btn btn-secondary" onclick="showSection('login')">
+      📋 Ver meus eventos
+    </button>
+
+    <button class="btn btn-link" onclick="showSection('code')">
+      Tenho um código
+    </button>
+  </div>
+
+  <!-- ESCOLHA -->
+  <div id="authChoice" class="section">
+    <div class="logo">Antes de continuar</div>
+
+    <button class="btn btn-primary" onclick="showSection('login')">
+      Já tenho conta
+    </button>
+
+    <button class="btn btn-secondary" onclick="showSection('register')">
+      Criar nova conta
+    </button>
+
+    <button class="btn btn-link" onclick="showSection('home')">
+      ← Voltar
+    </button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login" class="section">
+    <div class="logo">Login</div>
+
+    <input type="email" id="loginEmail" placeholder="Seu e-mail">
+    <input type="password" id="loginPassword" placeholder="Senha">
+
+    <button class="btn btn-primary" onclick="login()">
+      Entrar
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+
+    <button class="btn btn-link" onclick="showSection('register')">
+      Criar conta
+    </button>
+
+    <button class="btn btn-link" onclick="showSection('home')">
+      ← Voltar
+    </button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="register" class="section">
+    <div class="logo">Criar Conta</div>
+
+    <input type="text" id="registerName" placeholder="Seu nome">
+    <input type="email" id="registerEmail" placeholder="Seu e-mail">
+    <input type="password" id="registerPassword" placeholder="Senha">
+
+    <button class="btn btn-primary" onclick="register()">
+      Criar Conta
+    </button>
+
+    <div id="registerMessage" class="message"></div>
+
+    <button class="btn btn-link" onclick="showSection('login')">
+      Já tenho conta
+    </button>
+
+    <button class="btn btn-link" onclick="showSection('home')">
+      ← Voltar
+    </button>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(section => {
+    section.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+</script>
+
+</body>
+</html>

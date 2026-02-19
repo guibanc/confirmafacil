@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evento - ConfirmaFácil</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #ffffff;
+  color: #111;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.logo span {
+  color: #FFD600;
+}
+
+.event-name {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.confirmed-count {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #FFD600;
+  box-shadow: 0 0 0 3px rgba(255,214,0,0.2);
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: #FFD600;
+}
+
+.btn:hover {
+  background: #e6c200;
+}
+
+.success {
+  margin-top: 15px;
+  color: green;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="logo">Confirma<span>Fácil</span></div>
+
+  <div class="event-name" id="eventName"></div>
+  <div class="confirmed-count" id="confirmedCount"></div>
+
+  <input type="text" id="guestName" placeholder="Seu nome">
+  <input type="email" id="guestEmail" placeholder="Seu email">
+
+  <button class="btn" id="confirmBtn">Confirmar Presença</button>
+
+  <div class="success" id="successMsg">
+    Presença confirmada com sucesso!
+  </div>
+
+</div>
+
+<script src="/event.js"></script>
+
+</body>
+</html>
